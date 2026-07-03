@@ -1,0 +1,48 @@
+export type RoundName = 'Last 16' | 'Quarter Final' | 'Semi Final' | 'Final';
+export type Fixture = { id:string; round:RoundName; home:string; away:string; date:string; time:string; lock:string; homeScore?:number|null; awayScore?:number|null };
+export type Player = { id:number; name:string; username:string; password:string; paid:boolean };
+export type Prediction = { fixtureId:string; home:string; away:string; joker:boolean };
+
+export const adminUser = { username: 'admin', password: 'rt2026' };
+export const players: Player[] = Array.from({ length: 50 }, (_, i) => ({
+  id: i + 1,
+  name: `Player ${i + 1}`,
+  username: `player${i + 1}`,
+  password: `wc2026-${String(i + 1).padStart(2, '0')}`,
+  paid: false
+}));
+
+export const fixtures: Fixture[] = [
+  { id:'L16-1', round:'Last 16', home:'Canada', away:'Morocco', date:'04 Jul', time:'18:00', lock:'04 Jul 17:00' },
+  { id:'L16-2', round:'Last 16', home:'Paraguay', away:'France', date:'04 Jul', time:'22:00', lock:'04 Jul 17:00' },
+  { id:'L16-3', round:'Last 16', home:'Brazil', away:'Norway', date:'05 Jul', time:'21:00', lock:'04 Jul 17:00' },
+  { id:'L16-4', round:'Last 16', home:'Mexico', away:'England', date:'06 Jul', time:'01:00', lock:'04 Jul 17:00' },
+  { id:'L16-5', round:'Last 16', home:'Portugal/Croatia', away:'Spain/Austria', date:'06 Jul', time:'20:00', lock:'04 Jul 17:00' },
+  { id:'L16-6', round:'Last 16', home:'United States', away:'Belgium', date:'07 Jul', time:'01:00', lock:'04 Jul 17:00' },
+  { id:'L16-7', round:'Last 16', home:'Argentina/Cape Verde', away:'Australia/Egypt', date:'07 Jul', time:'17:00', lock:'04 Jul 17:00' },
+  { id:'L16-8', round:'Last 16', home:'Switzerland/Algeria', away:'Colombia/Ghana', date:'07 Jul', time:'21:00', lock:'04 Jul 17:00' },
+  { id:'QF-1', round:'Quarter Final', home:'Winner L16-1', away:'Winner L16-2', date:'09 Jul', time:'21:00', lock:'09 Jul 20:00' },
+  { id:'QF-2', round:'Quarter Final', home:'Winner L16-5', away:'Winner L16-6', date:'10 Jul', time:'20:00', lock:'09 Jul 20:00' },
+  { id:'QF-3', round:'Quarter Final', home:'Winner L16-3', away:'Winner L16-4', date:'11 Jul', time:'22:00', lock:'09 Jul 20:00' },
+  { id:'QF-4', round:'Quarter Final', home:'Winner L16-7', away:'Winner L16-8', date:'12 Jul', time:'02:00', lock:'09 Jul 20:00' },
+  { id:'SF-1', round:'Semi Final', home:'Winner QF-1', away:'Winner QF-2', date:'14 Jul', time:'20:00', lock:'14 Jul 19:00' },
+  { id:'SF-2', round:'Semi Final', home:'Winner QF-3', away:'Winner QF-4', date:'15 Jul', time:'20:00', lock:'14 Jul 19:00' },
+  { id:'F-1', round:'Final', home:'Winner SF-1', away:'Winner SF-2', date:'19 Jul', time:'20:00', lock:'19 Jul 19:00' }
+];
+
+export const prizes = [
+  ['1st','£180'], ['2nd','£120'], ['3rd','£90'], ['4th','£70'], ['5th','£60'],
+  ['6th','£50'], ['7th','£45'], ['8th','£40'], ['9th','£35'], ['10th','£30'],
+  ['Most Correct Scores','£20'], ['Wooden Spoon','£10']
+];
+
+export function scorePrediction(pred?: Prediction, fixture?: Fixture) {
+  if (!pred || !fixture || fixture.homeScore === undefined || fixture.homeScore === null || fixture.awayScore === undefined || fixture.awayScore === null) return { points:0, exact:0, correct:0, zero:0, jokerPoints:0 };
+  const ph = Number(pred.home); const pa = Number(pred.away);
+  if (Number.isNaN(ph) || Number.isNaN(pa)) return { points:0, exact:0, correct:0, zero:0, jokerPoints:0 };
+  let base = 0, exact = 0, correct = 0, zero = 0;
+  if (ph === fixture.homeScore && pa === fixture.awayScore) { base = ph === 0 && pa === 0 ? 5 : 4; exact = 1; zero = ph === 0 && pa === 0 ? 1 : 0; }
+  else if (Math.sign(ph - pa) === Math.sign(fixture.homeScore - fixture.awayScore)) { base = 2; correct = 1; }
+  const points = pred.joker ? base * 2 : base;
+  return { points, exact, correct, zero, jokerPoints: pred.joker ? base : 0 };
+}

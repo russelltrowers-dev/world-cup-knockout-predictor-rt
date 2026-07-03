@@ -1,0 +1,8 @@
+import type { Metadata } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = { title: 'World Cup Knockout Predictor RT', description: 'Private FIFA World Cup 2026 knockout predictor competition.' };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="en"><body>{children}</body></html>;
+}
